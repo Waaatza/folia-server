@@ -7,8 +7,8 @@ MAX_RAM="6G"
 # --- SERVER JAR ---
 JAR_NAME="folia-26.1.2-8.jar"
 
-while true
-do
+#while true
+#do
   echo "Starting Folia server..."
 
   java \
@@ -33,5 +33,5 @@ do
   -jar ${JAR_NAME} nogui
 
   echo "Server crashed! Restarting in 10 seconds..."
-  sleep 10
-done
+  #sleep 10
+#done
