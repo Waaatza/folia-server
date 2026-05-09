@@ -24,6 +24,10 @@ jobs:
 
           echo -e "Host *\n  IdentitiesOnly yes\n" > ~/.ssh/config
 
+
+      - name: Test SSH connection
+        run: ssh -v "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "echo OK"
+        
       - name: Backup ausführen
         run: |
           ssh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" << EOF
