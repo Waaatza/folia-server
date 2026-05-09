@@ -1,0 +1,39 @@
+# Logs
+logs/
+*.log
+
+# Runtime / cache
+cache/
+libraries/
+versions/
+temp/
+tmp/
+
+# PID / session files
+*.pid
+*.lock
+
+# Crash reports
+crash-reports/
+
+# Backups
+backups/
+
+# Plugins
+plugins/
+
+# Java build files
+*.jar
+*.class
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Confidtential files
+server-scope-token.md
