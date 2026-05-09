@@ -22,6 +22,8 @@ jobs:
           # Host Key speichern
           ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
+          echo -e "Host *\n  IdentitiesOnly yes\n" > ~/.ssh/config
+
       - name: Backup ausführen
         run: |
           ssh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" << EOF
