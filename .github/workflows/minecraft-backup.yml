@@ -14,20 +14,24 @@ jobs:
         run: |
           mkdir -p ~/.ssh
 
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          # SSH Key korrekt schreiben (wichtig: keine Formatzerstörung)
+          printf "%s" "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
 
           chmod 600 ~/.ssh/id_ed25519
 
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          # Host Key speichern
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Backup ausführen
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" << EOF
 
-            cd ${{ secrets.SERVER_PATH }}
+            set -e
 
-            # Welt speichern
-            screen -S minecraft -p 0 -X stuff "save-all$(printf '\r')"
+            cd "${{ secrets.SERVER_PATH }}"
+
+            # Minecraft Welt speichern (falls screen genutzt wird)
+            screen -S minecraft -p 0 -X stuff "save-all$(printf '\r')" || true
 
             sleep 5
 
