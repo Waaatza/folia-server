@@ -14,30 +14,36 @@ jobs:
         run: |
           mkdir -p ~/.ssh
 
-          # KEY sauber schreiben (WICHTIG: kein heredoc!)
-          printf "%s" "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          # SSH Key sicher schreiben + CRLF entfernen
+          printf "%s" "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
 
           chmod 600 ~/.ssh/id_ed25519
 
+          # Known Hosts
           ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
-          echo -e "Host *\n  IdentitiesOnly yes\n" > ~/.ssh/config
+          # verhindert "too many auth failures"
+          cat > ~/.ssh/config << 'EOF'
+Host *
+  IdentitiesOnly yes
+EOF
 
       - name: Test SSH connection
-        run: ssh -v "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "echo OK"
+        run: ssh -o BatchMode=yes "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "echo SSH_OK"
 
       - name: Backup ausführen
         run: |
           ssh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" << 'EOF'
-
             set -e
 
             cd "${{ secrets.SERVER_PATH }}"
 
+            # Minecraft Welt speichern
             screen -S minecraft -p 0 -X stuff "save-all$(printf '\r')" || true
 
             sleep 5
 
+            # Git Setup
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
 
@@ -46,5 +52,4 @@ jobs:
             git commit -m "Automatisches Backup $(date '+%Y-%m-%d %H:%M:%S')" || echo "Keine Änderungen"
 
             git push
-
           EOF
