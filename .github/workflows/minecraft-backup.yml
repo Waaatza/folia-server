@@ -14,38 +14,33 @@ jobs:
         run: |
           mkdir -p ~/.ssh
 
-          # SSH Key korrekt schreiben (wichtig: keine Formatzerstörung)
+          # KEY sauber schreiben (WICHTIG: kein heredoc!)
           printf "%s" "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
 
           chmod 600 ~/.ssh/id_ed25519
 
-          # Host Key speichern
           ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
           echo -e "Host *\n  IdentitiesOnly yes\n" > ~/.ssh/config
 
-
       - name: Test SSH connection
         run: ssh -v "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "echo OK"
-        
+
       - name: Backup ausführen
         run: |
-          ssh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" << EOF
+          ssh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" << 'EOF'
 
             set -e
 
             cd "${{ secrets.SERVER_PATH }}"
 
-            # Minecraft Welt speichern (falls screen genutzt wird)
             screen -S minecraft -p 0 -X stuff "save-all$(printf '\r')" || true
 
             sleep 5
 
-            # Git konfigurieren
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
 
-            # Änderungen committen
             git add .
 
             git commit -m "Automatisches Backup $(date '+%Y-%m-%d %H:%M:%S')" || echo "Keine Änderungen"
